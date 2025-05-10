@@ -42,7 +42,7 @@ env:
   LAMBDA_FUNCTION: ${{ inputs.lambda_function }}
   ALLOWED_USERS: "[\"Shwetha118\", \"aindurthi\"]"
 
-run-name: "Infra Deployment on ${{ github.event.inputs.environment || 'unknown' }}"
+run-name: "Infra Deployment on ${{ inputs.environment || 'unknown' }}"
 
 jobs:
   pre-commits:
@@ -57,7 +57,7 @@ jobs:
         contains(fromJSON(env.ALLOWED_USERS), github.actor) ||
         contains(fromJSON(env.ALLOWED_USERS), github.triggering_actor)
       )
-    environment: ${{ env.ENVIRONMENT  }}
+    environment: ${{ inputs.environment  }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

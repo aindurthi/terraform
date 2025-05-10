@@ -5,12 +5,12 @@ on:
     types: [closed]
     branches: [dev, qa, uat, main]
 
-  pull_request_review:
-    types: [submitted]
-    branches: [dev, qa, uat, main]
+  # pull_request_review:
+  #   types: [submitted]
+  #   branches: [dev, qa, uat, main]
 
-  push:
-    branches: [dev, qa, uat, main]
+  # push:
+  #   branches: [dev, qa, uat, main]
 
   workflow_dispatch:
     inputs:
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       (
-        (contains(fromJSON('["dev", "qa", "uat"]'), github.base_ref) && github.event_name == 'pull_request_review') ||
+        (contains(fromJSON('["dev", "qa", "uat"]'), github.base_ref) && github.event_name == 'pull_request') ||
         (contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref))
       ) &&
       (
@@ -75,7 +75,6 @@ jobs:
     if: >
       (
         contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref) &&
-        github.event_name == 'push' &&
         github.event.head_commit.message != ''
       ) &&
       (

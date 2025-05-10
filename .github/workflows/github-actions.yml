@@ -82,4 +82,4 @@ jobs:
       )
     steps:
       - name: Approved and Merged
-        run: echo "✅ Pull request approved and merged into environment: ${{ github.event.inputs.environment || 'unknown' }}"
+        run: echo "✅ Pull request approved and merged into environment ${{ inputs.environment }}"

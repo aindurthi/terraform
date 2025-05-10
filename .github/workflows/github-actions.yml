@@ -1,5 +1,5 @@
 name: "Check flow"
-##
+
 on:
   pull_request:
     types: [closed]

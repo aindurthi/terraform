@@ -37,12 +37,12 @@ on:
         default: 'false'
         type: boolean
 
-ALLOWED_USERS: "[\"Shwetha118\", \"aindurthi\"]"
+# ALLOWED_USERS: "[\"Shwetha118\", \"aindurthi\"]"
 
 env:
   ENVIRONMENT: ${{ inputs.environment}}
   LAMBDA_FUNCTION: ${{ inputs.lambda_function }}
-  # ALLOWED_USERS: "[\"Shwetha118\", \"aindurthi\"]"
+  ALLOWED_USERS: "[\"Shwetha118\", \"aindurthi\"]"
 
 run-name: "Infra Deployment on ${{ inputs.environment || 'unknown' }}"
 
@@ -56,8 +56,8 @@ jobs:
         (contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref))
       ) &&
       (
-        contains(fromJSON(ALLOWED_USERS), github.actor) ||
-        contains(fromJSON(ALLOWED_USERS), github.triggering_actor)
+        contains(fromJSON(${{envs.ALLOWED_USERS}}), github.actor) ||
+        contains(fromJSON(${{envs.ALLOWED_USERS}}), github.triggering_actor)
       )
     environment: ${{ inputs.environment  }}
     steps:
@@ -79,8 +79,8 @@ jobs:
         github.event.head_commit.message != ''
       ) &&
       (
-        contains(fromJSON(ALLOWED_USERS), github.actor) ||
-        contains(fromJSON(ALLOWED_USERS), github.triggering_actor)
+        contains(fromJSON(${{envs.ALLOWED_USERS}}), github.actor) ||
+        contains(fromJSON(${{envs.ALLOWED_USERS}}), github.triggering_actor)
       )
     steps:
       - name: Approved and Merged

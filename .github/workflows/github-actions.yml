@@ -1,107 +1,84 @@
-name: Check flow
+name: "Check flow"
 
 on:
   pull_request:
-    types:
-      - closed
-    branches:
-      - dev
-      - qa
-      - uat
-      - main
+    types: [closed]
+    branches: [dev, qa, uat, main]
 
   pull_request_review:
-    types: [submitted] 
-    branches:
-      - dev
-      - qa
-      - uat
-      - main
+    types: [submitted]
+    branches: [dev, qa, uat, main]
 
   push:
-    branches:
-      - dev
-      - qa
-      - uat
-      - main
+    branches: [dev, qa, uat, main]
 
-workflow_dispatch:
-  inputs:
-    environment:
-      description: "Please choose the environment to deploy"
-      required: true
-      default: 'dev'
-      type: choice
-        - dev
-        - qa
-        - uat
-        - prod
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Please choose the environment to deploy"
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - qa
+          - uat
+          - prod
 
-    lambda_function:
-      description: "Please give a targeted lambda function"
-      required: true
-      default: 'samplefunction'
-      type: string
-      
+      lambda_function:
+        description: "Please give a targeted lambda function"
+        required: true
+        default: 'samplefunction'
+        type: string
 
-    all_lambdas:
-      description: "Choose all lambda function codes"
-      required: true
-      default: 'false'
-      type: boolean
+      all_lambdas:
+        description: "Choose all lambda function codes"
+        required: true
+        default: 'false'
+        type: boolean
 
 env:
-  LAMBDA_FUNCTION: ${{inputs.lambda_function}}
-  ALLOWED_USERS: ["Shwetha118","aindurthi"]
+  LAMBDA_FUNCTION: ${{ inputs.lambda_function }}
+  ALLOWED_USERS: "[\"Shwetha118\", \"aindurthi\"]"
 
-
-run-name: "Infra Deployment on ${{ github.event.inputs.environment }}"
+run-name: "Infra Deployment on ${{ github.event.inputs.environment || 'unknown' }}"
 
 jobs:
   pre-commits:
     name: "Check on the prerequisites"
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     if: >
       (
         (contains(fromJSON('["dev", "qa", "uat"]'), github.base_ref) && github.event_name == 'pull_request') ||
-        (contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref)
+        (contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref))
       ) &&
       (
-        contains(fromJSON('${{env.ALLOWED_USERS}}'), github.actor) ||
-        contains(fromJSON('${{emv.ALLOWED_USERS}}'), github.triggering_actor)
+        contains(fromJSON(env.ALLOWED_USERS), github.actor) ||
+        contains(fromJSON(env.ALLOWED_USERS), github.triggering_actor)
       )
-    environment: "${{inputs.environment}}"
+    environment: ${{ github.event.inputs.environment || 'dev' }}
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show GitHub context   
-        shell: pwsh
-        run: |
-          write-output "$GITHUB_CONTEXT"
-        env: 
-          GITHUB_CONTEXT: ${{ toJson(github) }}  
+      - name: Show GitHub Context
+        run: echo "${{ toJson(github) }}"
 
       - name: Echo Step
-        run: echo "Conditions met  running job! and variable is ${{vars.environ}}"
+        run: echo "Conditions met. Running job! Environment: ${{ github.event.inputs.environment || 'not provided' }}"
 
   pr-approved-and-merged:
+    runs-on: ubuntu-latest
     if: >
       (
-        (contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref) && (github.event_name == 'push') && (github.event.head_commit.message != '')
+        contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref) &&
+        github.event_name == 'push' &&
+        github.event.head_commit.message != ''
       ) &&
       (
-        contains(fromJSON('${{env.ALLOWED_USERS}}'), github.actor) ||
-        contains(fromJSON('${{env.ALLOWED_USERS}}'), github.triggering_actor)
+        contains(fromJSON(env.ALLOWED_USERS), github.actor) ||
+        contains(fromJSON(env.ALLOWED_USERS), github.triggering_actor)
       )
-    runs-on: ubuntu-latest
     steps:
       - name: Approved and Merged
-        run: echo "✅ Pull request approved and merged into {{inputss.environment}}"
-    
-
-    
-
-
-
-
+        run: echo "✅ Pull request approved and merged into environment: ${{ github.event.inputs.environment || 'unknown' }}"

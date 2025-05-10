@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >
       (
-        (contains(fromJSON('["dev", "qa", "uat"]'), github.base_ref) && github.event_name == 'pull_request') ||
+        (contains(fromJSON('["dev", "qa", "uat"]'), github.base_ref) && github.event_name == 'pull_request_review') ||
         (contains(fromJSON('["refs/heads/dev", "refs/heads/qa", "refs/heads/uat"]'), github.ref))
       ) &&
       (
